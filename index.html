@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAMP Yönetim Sistemi</title>
+<style>
+body{font-family:Arial;background:#f1f5f9;margin:0;color:#1e293b}
+header{background:#14532d;color:white;padding:22px}
+main{padding:20px;max-width:1100px;margin:auto}
+.cards{display:flex;gap:12px;flex-wrap:wrap}
+.card{background:white;padding:18px;border-radius:10px;flex:1;min-width:130px}
+form{background:white;padding:20px;border-radius:10px;margin-top:20px}
+input,select,button{padding:11px;margin:5px 0;border:1px solid #cbd5e1;border-radius:5px}
+input,select{box-sizing:border-box;width:100%}
+button{background:#15803d;color:white;cursor:pointer}
+table{width:100%;background:white;border-collapse:collapse;margin-top:20px}
+th,td{padding:10px;border:1px solid #ddd;text-align:left}
+h2{margin-top:25px}
+</style>
+</head>
+<body>
+<header>
+<h1>CAMP Yönetim Sistemi</h1>
+<p>Personel ve Yatakhane Yönetimi</p>
+</header>
+<main>
+<div class="cards">
+<div class="card">Toplam Personel<h2 id="total">0</h2></div>
+<div class="card">Dolu Oda<h2 id="rooms">0 / 12</h2></div>
+<div class="card">Boş Yatak<h2 id="beds">96</h2></div>
+</div>
+<form id="form">
+<h2>Personel Ekle</h2>
+<input id="name" placeholder="Ad Soyad" required>
+<input id="job" placeholder="Görev">
+<input id="company" placeholder="Firma">
+<select id="nationality">
+<option value="Afgan">Afgan</option>
+<option value="Somalili">Somalili</option>
+<option value="Türk">Türk</option>
+<option value="Diğer">Diğer</option>
+</select>
+<select id="room"></select>
+<button type="submit">Personeli Kaydet</button>
+</form>
+<h2>Personel Listesi</h2>
+<table>
+<thead><tr><th>Ad Soyad</th><th>Görev</th><th>Firma</th><th>Uyruk</th><th>Oda</th></tr></thead>
+<tbody id="list"></tbody>
+</table>
+</main>
+<script>
+const room=document.getElementById('room');
+for(let i=1;i<=12;i++)room.add(new Option('Oda '+i,i));
+let people=JSON.parse(localStorage.getItem('campPeople')||'[]');
+function render(){
+document.getElementById('list').innerHTML=people.map(p=>'<tr><td>'+p.name+'</td><td>'+p.job+'</td><td>'+p.company+'</td><td>'+p.nationality+'</td><td>'+p.room+'</td></tr>').join('');
+document.getElementById('total').textContent=people.length;
+document.getElementById('rooms').textContent=new Set(people.map(p=>p.room)).size+' / 12';
+document.getElementById('beds').textContent=96-people.length;
+}
+document.getElementById('form').addEventListener('submit',e=>{
+e.preventDefault();
+if(people.length>=96){alert('Kamp kapasitesi doldu!');return;}
+if(people.filter(p=>p.room===room.value).length>=8){alert('Bu oda dolu! Başka oda seçin.');return;}
+people.push({name:document.getElementById('name').value,job:document.getElementById('job').value,company:document.getElementById('company').value,nationality:document.getElementById('nationality').value,room:room.value});
+localStorage.setItem('campPeople',JSON.stringify(people));
+e.target.reset();render();
+});
+render();
+</script>
+</body>
+</html>
